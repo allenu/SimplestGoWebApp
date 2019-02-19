@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/stylesheets/style.css" />
+    </head>
+<body>
+    <h1>Welcome to SimplestGoWebApp.</h1>
+
+<div id="error-box-text" style="display:none;">
+</div>
+<div id="posts">
+    Loading...
+</div>
+
+</body>
+    <script src="/scripts/main.js"></script>
+    <script>
+        let postId = "{{ .PostId }}"
+
+        fetchPost(postId, (fullPost) => {
+            let div = divForPost(fullPost, false)
+            let postsDiv = document.getElementById("posts")
+            postsDiv.innerHTML = ""
+            postsDiv.appendChild(div)
+        })
+    </script>
+</html>

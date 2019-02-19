@@ -1,0 +1,18 @@
+runtime: go
+api_version: go1
+
+handlers:
+- url: /stylesheets
+  static_dir: static/stylesheets
+
+- url: /scripts
+  static_dir: static/scripts
+
+- url: /.*
+  script: _go_app
+
+# Change these
+env_variables:
+  sessions_secret: 'Change this to whatever'
+  bucket_name: staging.yourappnamehere.appspot.com
+

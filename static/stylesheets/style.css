@@ -1,0 +1,32 @@
+body {
+    font-family: Garamond;
+    font-size: 18pt;
+    max-width: 720px;
+    background: #fefea0;
+    padding: 48px;
+}
+input {
+    font-size: 18pt;
+    padding: 8px;
+}
+h1 {
+    font-size: 24pt;
+}
+
+#error-box-text {
+    color: red;
+}
+#request-submit-button {
+    font-size: 20pt;
+    font-family: Verdana;
+}
+.post {
+    display: flex;
+    width: 600px;
+    padding: 8px;
+    background-color: #88e8f8;
+    margin: 8px 0;
+}
+.post div {
+    padding: 8px;
+}

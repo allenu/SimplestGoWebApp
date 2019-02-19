@@ -1,0 +1,146 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/stylesheets/style.css" />
+    </head>
+
+
+<body>
+    <h1>Welcome to SimplestGoWebApp.</h1>
+    <p>This is a basic demonstration of a CRUD app written in Golang and using Google Cloud Platform. Specifically, content is stored in a Google Storage bucket, with some lookup data stored in a Datastore database.</p>
+    <p>To see code, visit <a href="https://github.com/allenu/SimplestGoWebApp">SimplestGoWebApp github project</a>.</p>
+    <p>Created by <a href="https://twitter.com/ussherpress">ussherpress</a>.</p>
+        <div id="error-box-text" style="display:none;">
+        </div>
+        <form>
+            <input type="text" id="request-input" placeholder="Enter a message">
+            <a id="request-submit-button" class="button button-shadow primary">Post</a>
+        </form>
+
+        <div id="posts">
+            Loading...
+        </div>
+        <a id="load-more-button" href="javascript:LoadMore()">Load more posts...</a>
+</body>
+
+
+    <script src="/scripts/main.js"></script>
+    <script>
+        let fetchedPosts = []
+        var oldestPost = null
+        var hasMoreToFetch = true
+
+        function HideLoadMore() {
+            let loadMoreButton = document.getElementById("load-more-button")
+            loadMoreButton.style = "display: none;"
+        }
+        function LoadMore() {
+            if (!hasMoreToFetch) {
+                return
+            }
+
+            let startSearchIndex = fetchedPosts.length
+
+            let fetchSinceDate = null
+            if (oldestPost != null) {
+                fetchSinceDate = oldestPost.Created
+            }
+            fetchStream(fetchSinceDate, (posts, endOfList) => {
+                let postsDiv = document.getElementById("posts")
+
+                if (fetchedPosts.length == 0) {
+                    // First time fetching, so clear the "Loading..."
+                    postsDiv.innerHTML = ""
+                }
+
+                posts.forEach( post => {
+                    if (oldestPost != null) {
+                        if (post.Created < oldestPost.Created) {
+                            console.log("%s < %s -- assigning new oldestPost", post.Created, oldestPost.Created)
+                            oldestPost = post
+                        }
+                    } else {
+                        oldestPost = post
+                    }
+                    fetchPost(post.PostId, (fullPost) => {
+                        let div = divForPost(fullPost, true)
+
+                        if (fetchedPosts.length == 0) {
+                            fetchedPosts.push(fullPost)
+                            postsDiv.appendChild(div)
+                        } else {
+                            // Find where it fits in the already-existing list
+                            let insertIndex = startSearchIndex
+                            var i = 0;
+                            for (i=startSearchIndex; i < fetchedPosts.length; i++) {
+                                let fetchedPost = fetchedPosts[i]
+                                // Find the first post that is OLDER (date string is LESS than the fullPost). 
+                                // We will insert BEFORE that one.
+                                insertIndex = i
+                                if (fetchedPost.Created < fullPost.Created) {
+                                    break
+                                }
+                            }
+                            if (i == fetchedPosts.length) {
+                                insertIndex = fetchedPosts.length
+                            }
+
+                            let insertBeforeDiv = postsDiv.childNodes[insertIndex]
+                            postsDiv.insertBefore(div, insertBeforeDiv)
+                            fetchedPosts.splice(insertIndex, 0, fullPost)
+                        }
+                    })
+                })
+
+                if (endOfList) {
+                    hasMoreToFetch = false
+                    HideLoadMore()
+                }
+            })
+        }
+        function HandlePostRequest() {
+            let request_text = document.getElementById("request-input")
+            createPost(request_text.value, (error, post) => {
+
+                if (error == null) {
+                    let postsDiv = document.getElementById("posts")
+
+                    let div = divForPost(post, true)
+
+                    if (postsDiv.childNodes.length > 0) {
+                        let firstChild = postsDiv.childNodes[0]
+                        postsDiv.insertBefore(div, firstChild)
+                    } else {
+                        postsDiv.appendChild(div)
+                    }
+                    request_text.value = ""
+                    HideError()
+                } else {
+                    ShowError("Sorry, something went wrong")
+                }
+            })
+        }
+        function RequestKeyDown(e) {
+            e = e || window.event
+            var key = e.charCode || e.keyCode || 0
+            if(key == 13) {
+                HandlePostRequest()
+                e.preventDefault()
+            } else if (key == 27) {
+                // escape
+                document.getElementById("request-input").value = ""
+                e.preventDefault()
+            }
+        }
+        let request_input = document.getElementById("request-input")
+        if (request_input) {
+            request_input.onkeydown = RequestKeyDown
+        }
+
+        let request_submit_button = document.getElementById("request-submit-button")
+        if (request_submit_button) {
+            request_submit_button.href = "javascript:HandlePostRequest()"
+        }
+
+        LoadMore()
+    </script>
+</html>
