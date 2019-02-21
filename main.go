@@ -47,7 +47,7 @@ func init() {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-    fp := path.Join("templates", "welcome.html")
+    fp := path.Join("templates", "index.html")
     if tmpl, err := template.ParseFiles(fp); err == nil {
         tmpl.Execute(w, nil)
     } else {

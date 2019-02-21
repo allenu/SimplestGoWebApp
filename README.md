@@ -12,6 +12,12 @@ Use this project as a starting point for your next simple Golang web project!
 
 If you have questions, message me or tweet me at https://twitter.com/ussherpress.
 
+You can see it live here: https://simplestgowebapp.appspot.com/
+
+Here is a system diagram of what's implemented:
+
+![System Diagram](/diagrams/SimplestGoWebApp.png)
+
 ## Setup
 
 - Create a new Google Cloud Platform project using the GCP console.
